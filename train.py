@@ -21,14 +21,6 @@ wandb.init(project='FromSurface2DepthFinal', name='STLSTM_t32_d32', reinit=True,
 
 # %%
 
-def train(X, Y, model):
-    dataset = BarkleyDataset(X, Y)
-
-    model = nn.DataParallel(STLSTM(), device_ids=[0,1])
-    model.to(f'cuda:{model.device_ids[0]}') # .to(device)
-
-# %%
-
 if __name__=='__main__':
 
     #X = torch.rand(64,32,1,120,120).numpy()
@@ -41,10 +33,11 @@ if __name__=='__main__':
     val_len = int(length*val_split)
     train_len = length - val_len
 
-    model = nn.DataParallel(STLSTM())
+    model = nn.DataParallel(STLSTM(), device_ids=[0,1])
+    model.to(f'cuda:{model.device_ids[0]}') # .to(device)
 
     train_dataset, val_dataset = torch.utils.data.random_split(BarkleyDataset(X, Y), [train_len, val_len])
-
+    
     train_dataloader = torch.utils.data.DataLoader(train_dataset, batch_size=batch_size, 
                                                     shuffle=True, num_workers=2)
     val_dataloader = torch.utils.data.DataLoader(val_dataset, batch_size=batch_size, 

@@ -9,7 +9,7 @@ from tqdm import tqdm
 from models import STLSTM
 from datasets import BarkleyDataset
 
-device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 batch_size = 2
 lr = 3e-4
@@ -59,7 +59,7 @@ if __name__=='__main__':
 
 
     for epoch in range(epochs):
-        for idx, batch in tqdm(enumerate(train_dataloader)):
+        for idx, batch in tqdm(enumerate(train_dataloader), total=len(train_dataset)):
             X = batch['X'].to(device)
             Y = batch['Y'].to(device)
 

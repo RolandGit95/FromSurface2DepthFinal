@@ -32,7 +32,7 @@ if __name__=='__main__':
 
     lrs = [5e-3, 2e-3, 1e-3, 5e-4, 3e-4, 1e-4]
     for lr in lrs:
-        length = len(X)
+        length = len(X_raw)
         val_len = int(length*val_split)
         train_len = length - val_len
 

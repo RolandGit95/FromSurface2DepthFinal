@@ -57,6 +57,7 @@ if __name__=='__main__':
             X = batch['X'].to(0)
             Y = batch['Y'].to(0)
 
+            print(X.shape)
             for param in model.parameters():
                 param.grad = None
 

@@ -67,6 +67,8 @@ if __name__=='__main__':
             wandb.log({"loss": loss})
             loss.backward()
             optimizer.step()
+
+            del y_pred, loss
         #print(X.shape)
     #with torch.no_grad():
     #    y_pred = model(X[:1], max_depth=32)

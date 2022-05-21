@@ -48,11 +48,15 @@ if __name__=='__main__':
     criterion = nn.MSELoss()
     val_loss_fnc = nn.L1Loss()
     optimizer = torch.optim.Adam(model.parameters(), lr=lr)
-    callbacks = [ReduceLROnPlateau(optimizer, patience=1, factor=0.3, min_lr=1e-7, verbose=True)]
+    callbacks = [ReduceLROnPlateau(optimizer, patience=512, factor=0.3, min_lr=1e-7, verbose=True)]
 
     torch.backends.cudnn.benchmark = True
 
     wandb.watch(model, log="all", log_freq=1)
+
+    def get_lr():
+        for param_group in optimizer.param_groups:
+            return param_group['lr']
 
 
     for epoch in range(epochs):
@@ -72,6 +76,8 @@ if __name__=='__main__':
             optimizer.step()
 
             del y_pred, loss
+
+            wandb.log({"lr": get_lr()})
 
 
             if i % 2 == 0:

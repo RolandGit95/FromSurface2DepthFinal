@@ -61,8 +61,8 @@ if __name__=='__main__':
 
     for epoch in range(epochs):
         for idx, batch in tqdm(enumerate(train_dataloader), total=len(train_dataset)):
-            X = batch['X'].to(device)
-            Y = batch['Y'].to(device)
+            X = batch['X'].to(0)
+            Y = batch['Y'].to(0)
 
             for param in model.parameters():
                 param.grad = None

@@ -48,7 +48,7 @@ if __name__=='__main__':
     criterion = nn.MSELoss()
     val_loss_fnc = nn.MAELoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=lr)
-    callbacks = [ReduceLROnPlateau(optimizer, patience=512, factor=0.3, min_lr=1e-7, verbose=True)]
+    callbacks = [ReduceLROnPlateau(optimizer, patience=1, factor=0.3, min_lr=1e-7, verbose=True)]
 
     torch.backends.cudnn.benchmark = True
 

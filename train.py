@@ -46,7 +46,7 @@ if __name__=='__main__':
 
     val_dataloader_iter = iter(val_dataloader)
     criterion = nn.MSELoss()
-    val_loss_fnc = nn.MAELoss()
+    val_loss_fnc = nn.L1Loss()
     optimizer = torch.optim.Adam(model.parameters(), lr=lr)
     callbacks = [ReduceLROnPlateau(optimizer, patience=1, factor=0.3, min_lr=1e-7, verbose=True)]
 

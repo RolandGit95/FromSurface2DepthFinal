@@ -80,7 +80,7 @@ if __name__=='__main__':
             wandb.log({"lr": get_lr()})
 
 
-            if i % 2 == 0:
+            if i % 16 == 0:
                 try:
                     batch = next(val_dataloader_iter)
                     X_val, y_val = batch['X'], batch['Y']

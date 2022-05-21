@@ -33,8 +33,8 @@ if __name__=='__main__':
     #X = torch.rand(64,32,1,120,120).numpy()
     #Y = torch.rand(64,1,32,120,120).numpy()
 
-    X = torch.load('data/_X.npy')#, map_location=device)
-    Y = torch.load('data/_Y.npy')#, map_location=device)
+    X = torch.load('data/X_train.pt')#, map_location=device)
+    Y = torch.load('data/Y_train.pt')#, map_location=device)
 
     length = len(X)
     val_len = int(length*val_split)

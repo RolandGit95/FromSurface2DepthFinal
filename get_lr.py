@@ -27,19 +27,19 @@ if __name__=='__main__':
     #X = torch.rand(64,32,1,120,120).numpy()
     #Y = torch.rand(64,1,32,120,120).numpy()
 
-    X = torch.load('data/X_train_debug.pt')#, map_location=device)
-    Y = torch.load('data/Y_train_debug.pt')#, map_location=device)
+    X_raw = torch.load('data/X_train_debug.pt')#, map_location=device)
+    Y_raw = torch.load('data/Y_train_debug.pt')#, map_location=device)
 
-    length = len(X)
-    val_len = int(length*val_split)
-    train_len = length - val_len
-    
     lrs = [5e-3, 2e-3, 1e-3, 5e-4, 3e-4, 1e-4]
     for lr in lrs:
+        length = len(X)
+        val_len = int(length*val_split)
+        train_len = length - val_len
+
         model = nn.DataParallel(STLSTM(), device_ids=[0,1])
         model.to(f'cuda:{model.device_ids[0]}') # .to(device)
 
-        train_dataset, val_dataset = torch.utils.data.random_split(BarkleyDataset(X, Y), [train_len, val_len])
+        train_dataset, val_dataset = torch.utils.data.random_split(BarkleyDataset(X_raw, Y_raw), [train_len, val_len])
 
         train_dataloader = torch.utils.data.DataLoader(train_dataset, batch_size=batch_size, 
                                                         shuffle=True, num_workers=2, drop_last=True)

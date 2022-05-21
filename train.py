@@ -45,7 +45,7 @@ if __name__=='__main__':
 
     val_dataloader_iter = iter(val_dataloader)
     criterion = nn.MSELoss()
-    val_loss = nn.MSELoss()
+    val_loss_fnc = nn.MSELoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=lr)
 
     torch.backends.cudnn.benchmark = True
@@ -85,7 +85,7 @@ if __name__=='__main__':
 
                 with torch.no_grad():
                     val_outputs = model(X_val, max_depth=32)
-                    val_loss = val_loss(y_val, val_outputs)
+                    val_loss = val_loss_fnc(y_val, val_outputs)
 
                 #for callback in callbacks:
                 #    callback.step(val_loss)

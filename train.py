@@ -11,7 +11,7 @@ from datasets import BarkleyDataset
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-batch_size = 2
+batch_size = 4
 lr = 3e-4
 val_split = 0.1
 epochs = 2
@@ -62,8 +62,8 @@ if __name__=='__main__':
                 param.grad = None
 
             # forward + backward + optimize
-            y_pred = model(X, max_depth=1)
-            loss = criterion(y_pred, Y[:,:,:1])
+            y_pred = model(X, max_depth=32)
+            loss = criterion(y_pred, Y[:,:,:32])
             wandb.log({"loss": loss})
             loss.backward()
             optimizer.step()

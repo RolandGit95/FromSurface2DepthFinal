@@ -37,11 +37,11 @@ if __name__=='__main__':
     model.to(f'cuda:{model.device_ids[0]}') # .to(device)
 
     train_dataset, val_dataset = torch.utils.data.random_split(BarkleyDataset(X, Y), [train_len, val_len])
-    
+
     train_dataloader = torch.utils.data.DataLoader(train_dataset, batch_size=batch_size, 
-                                                    shuffle=True, num_workers=2)
+                                                    shuffle=True, num_workers=2, drop_last=True)
     val_dataloader = torch.utils.data.DataLoader(val_dataset, batch_size=batch_size, 
-                                                    shuffle=False, num_workers=2)
+                                                    shuffle=False, num_workers=2, drop_last=True)
 
     criterion = nn.MSELoss()
     val_loss = nn.MSELoss()

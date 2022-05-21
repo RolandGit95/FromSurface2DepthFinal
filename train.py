@@ -14,7 +14,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 batch_size = 4
 lr = 3e-4
 val_split = 0.1
-epochs = 16
+epochs = 64
 
 os.environ["WANDB_MODE"] = "dryrun"
 wandb.init(project='FromSurface2DepthFinal', name='STLSTM_t32_d32', reinit=True,dir="logs/")
@@ -57,7 +57,7 @@ if __name__=='__main__':
             X = batch['X'].to(0)
             Y = batch['Y'].to(0)
 
-            #print(X.shape)
+            ##print(X.shape)
             for param in model.parameters():
                 param.grad = None
 

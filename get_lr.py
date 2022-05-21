@@ -18,7 +18,6 @@ val_split = 0.1
 epochs = 4
 
 os.environ["WANDB_MODE"] = "dryrun"
-wandb.init(project='FromSurface2DepthFinal', name='STLSTM_t32_d32_lrtest', reinit=True,dir="logs/")
 
 # %%
 
@@ -32,6 +31,8 @@ if __name__=='__main__':
 
     lrs = [5e-3, 2e-3, 1e-3, 5e-4, 3e-4, 1e-4]
     for lr in lrs:
+        wandb.init(project='FromSurface2DepthFinal', name='STLSTM_t32_d32_lrtest', reinit=True,dir="logs/")
+
         length = len(X_raw)
         val_len = int(length*val_split)
         train_len = length - val_len
@@ -101,6 +102,7 @@ if __name__=='__main__':
 
                     for callback in callbacks:
                         callback.step(val_loss)
+        wandb.finish()
 
                 #for callback in callbacks:
                 #    callback.step(val_loss)

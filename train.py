@@ -8,13 +8,14 @@ from tqdm import tqdm
 
 from models import STLSTM
 from datasets import BarkleyDataset
+from torch.optim.lr_scheduler import ReduceLROnPlateau
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 batch_size = 4
 lr = 3e-4
 val_split = 0.1
-epochs = 64
+epochs = 16
 
 os.environ["WANDB_MODE"] = "dryrun"
 wandb.init(project='FromSurface2DepthFinal', name='STLSTM_t32_d32', reinit=True,dir="logs/")
@@ -45,8 +46,9 @@ if __name__=='__main__':
 
     val_dataloader_iter = iter(val_dataloader)
     criterion = nn.MSELoss()
-    val_loss_fnc = nn.MSELoss()
+    val_loss_fnc = nn.MAELoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=lr)
+    callbacks = [ReduceLROnPlateau(optimizer, patience=512, factor=0.3, min_lr=1e-7, verbose=True)]
 
     torch.backends.cudnn.benchmark = True
 
@@ -86,6 +88,10 @@ if __name__=='__main__':
                 with torch.no_grad():
                     val_outputs = model(X_val, max_depth=32)
                     val_loss = val_loss_fnc(y_val, val_outputs)
+                    wandb.log({"val_loss": val_loss})
+
+                for callback in callbacks:
+                    callback.step(val_loss)
 
                 #for callback in callbacks:
                 #    callback.step(val_loss)

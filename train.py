@@ -24,7 +24,8 @@ wandb.init(project='FromSurface2DepthFinal', name='STLSTM_t32_d32', reinit=True,
 def train(X, Y, model):
     dataset = BarkleyDataset(X, Y)
 
-    model = nn.DataParallel(STLSTM()).to(device)
+    model = nn.DataParallel(STLSTM(), device_ids=[0,1])
+    model.to(f'cuda:{model.device_ids[0]}') # .to(device)
 
 # %%
 

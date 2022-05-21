@@ -43,6 +43,7 @@ if __name__=='__main__':
     val_dataloader = torch.utils.data.DataLoader(val_dataset, batch_size=batch_size, 
                                                     shuffle=False, num_workers=2, drop_last=True)
 
+    val_dataloader_iter = iter(val_dataloader)
     criterion = nn.MSELoss()
     val_loss = nn.MSELoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=lr)
@@ -53,7 +54,7 @@ if __name__=='__main__':
 
 
     for epoch in range(epochs):
-        for idx, batch in tqdm(enumerate(train_dataloader)):
+        for i, batch in tqdm(enumerate(train_dataloader)):
             X = batch['X'].to(0)
             Y = batch['Y'].to(0)
 
@@ -69,6 +70,25 @@ if __name__=='__main__':
             optimizer.step()
 
             del y_pred, loss
+
+
+            if i % 2 == 0:
+                try:
+                    batch = next(val_dataloader_iter)
+                    X_val, y_val = batch['X'], batch['y']
+                except StopIteration:
+                    val_loader_iter = iter(val_dataloader)
+                    batch = next(val_loader_iter)
+                    X_val, y_val = batch['X'], batch['y']
+                X_val = X_val.to(0)
+                y_val = y_val.to(0)
+
+                with torch.no_grad():
+                    val_outputs = model(X_val, max_depth=32)
+                    val_loss = val_loss(y_val, val_outputs)
+
+                #for callback in callbacks:
+                #    callback.step(val_loss)
         #print(X.shape)
     #with torch.no_grad():
     #    y_pred = model(X[:1], max_depth=32)

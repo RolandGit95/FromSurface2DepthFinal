@@ -54,7 +54,7 @@ if __name__=='__main__':
 
 
     for epoch in range(epochs):
-        for i, batch in tqdm(enumerate(train_dataloader)):
+        for i, batch in tqdm(enumerate(train_dataloader), total=len(train_dataset)//batch_size):
             X = batch['X'].to(0)
             Y = batch['Y'].to(0)
 

@@ -13,9 +13,10 @@ from torch.optim.lr_scheduler import ReduceLROnPlateau
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 batch_size = 4
-lr = 3e-4
+lr = 8e-4
 val_split = 0.1
 epochs = 16
+hidden_size = 64
 
 os.environ["WANDB_MODE"] = "dryrun"
 wandb.init(project='FromSurface2DepthFinal', name='STLSTM_t32_d32', reinit=True,dir="logs/")
@@ -34,7 +35,7 @@ if __name__=='__main__':
     val_len = int(length*val_split)
     train_len = length - val_len
 
-    model = nn.DataParallel(STLSTM(), device_ids=[0,1])
+    model = nn.DataParallel(STLSTM(hidden_size=hidden_size), device_ids=[0,1])
     model.to(f'cuda:{model.device_ids[0]}') # .to(device)
 
     train_dataset, val_dataset = torch.utils.data.random_split(BarkleyDataset(X, Y), [train_len, val_len])

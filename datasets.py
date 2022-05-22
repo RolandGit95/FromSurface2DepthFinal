@@ -9,15 +9,15 @@ from torchvision.datasets import VisionDataset
 
 
 class BarkleyDataset(Dataset):
-    def __init__(self, X, Y) -> None:
+    def __init__(self, X, Y, depths=np.arange(0,32,1), time_steps=np.arange(0,32,1)) -> None:
 
         super(BarkleyDataset, self).__init__()
 
         self.transform = lambda data: (data.float()+127)/255.
         self.target_transform = lambda data: (data.float()+127)/255.
 
-        self.X = X #torch.from_numpy(X)
-        self.Y = Y #torch.from_numpy(Y)
+        self.X = X[:,time_steps] #dimensions: [N,T,D,H,W]#torch.from_numpy(X)
+        self.Y = Y[:,:,depths] #torch.from_numpy(Y)
 
     def __getitem__(self, idx: int):
 

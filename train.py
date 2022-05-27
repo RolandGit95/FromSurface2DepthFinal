@@ -103,7 +103,7 @@ if __name__=='__main__':
                 for callback in callbacks:
                     callback.step(val_loss)
 
-        torch.save(model, f'models/')
+        torch.save(model, f'models/STLSTM_t32_d_{depth}_ep{epoch}')
 
                 #for callback in callbacks:
                 #    callback.step(val_loss)

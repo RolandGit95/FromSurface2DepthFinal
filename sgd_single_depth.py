@@ -23,7 +23,7 @@
 #$ -o /data.bmp/heart/DataAnalysis/2020_3DExMedSurfaceToDepth/FromSurface2DepthFinal/logs
 
 # job array of length 1
-# -t 1:2
+#$ -t 1:2
 
 
 import os

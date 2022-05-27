@@ -24,12 +24,12 @@
 
 # job array of length 1
 # -t 1:2
-# %%
+
 
 import os
 import numpy as np
 
-# %%
+
 def main():
     print(os.environ['SGE_TASK_ID'])
     SGE_TASK_ID = int(os.environ['SGE_TASK_ID']) - 1

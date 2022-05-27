@@ -19,7 +19,7 @@ epochs = 16
 hidden_size = 64
 
 os.environ["WANDB_MODE"] = "dryrun"
-wandb.init(project='FromSurface2DepthFinal', name='STLSTM_t32_d32', reinit=True,dir="logs/")
+wandb.init(project='FromSurface2DepthFinal', name='STLSTM_t32_d_0', reinit=True,dir="logs/")
 
 # %%
 
@@ -38,7 +38,9 @@ if __name__=='__main__':
     model = nn.DataParallel(STLSTM(hidden_size=hidden_size)).to(device)#, device_ids=[0,1])
     #model.to(f'cuda:{model.device_ids[0]}') # .to(device)
 
-    train_dataset, val_dataset = torch.utils.data.random_split(BarkleyDataset(X, Y), [train_len, val_len])
+    depth = 0
+    depths = [depth]
+    train_dataset, val_dataset = torch.utils.data.random_split(BarkleyDataset(X, Y, depths=depths), [train_len, val_len])
 
     train_dataloader = torch.utils.data.DataLoader(train_dataset, batch_size=batch_size, 
                                                     shuffle=True, num_workers=2, drop_last=True)
@@ -60,6 +62,7 @@ if __name__=='__main__':
             return param_group['lr']
 
 
+    
     for epoch in range(epochs):
         for i, batch in tqdm(enumerate(train_dataloader), total=len(train_dataset)//batch_size):
             X = batch['X'].to(device)#.to(0)
@@ -70,8 +73,8 @@ if __name__=='__main__':
                 param.grad = None
 
             # forward + backward + optimize
-            y_pred = model(X, max_depth=32)
-            loss = criterion(y_pred, Y[:,:,:32])
+            y_pred = model(X, max_depth=len(depths))
+            loss = criterion(y_pred, Y[:,:,:])
             wandb.log({"loss": loss})
             loss.backward()
             optimizer.step()
@@ -93,12 +96,14 @@ if __name__=='__main__':
                 y_val = y_val.to(0)
 
                 with torch.no_grad():
-                    val_outputs = model(X_val, max_depth=32)
+                    val_outputs = model(X_val, max_depth=1)
                     val_loss = val_loss_fnc(y_val, val_outputs)
                     wandb.log({"val_loss": val_loss})
 
                 for callback in callbacks:
                     callback.step(val_loss)
+
+        torch.save(model, f'models/')
 
                 #for callback in callbacks:
                 #    callback.step(val_loss)

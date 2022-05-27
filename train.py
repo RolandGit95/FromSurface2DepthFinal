@@ -35,8 +35,8 @@ if __name__=='__main__':
     val_len = int(length*val_split)
     train_len = length - val_len
 
-    model = nn.DataParallel(STLSTM(hidden_size=hidden_size), device_ids=[0,1])
-    model.to(f'cuda:{model.device_ids[0]}') # .to(device)
+    model = nn.DataParallel(STLSTM(hidden_size=hidden_size)).to(device)#, device_ids=[0,1])
+    #model.to(f'cuda:{model.device_ids[0]}') # .to(device)
 
     train_dataset, val_dataset = torch.utils.data.random_split(BarkleyDataset(X, Y), [train_len, val_len])
 
@@ -62,8 +62,8 @@ if __name__=='__main__':
 
     for epoch in range(epochs):
         for i, batch in tqdm(enumerate(train_dataloader), total=len(train_dataset)//batch_size):
-            X = batch['X'].to(0)
-            Y = batch['Y'].to(0)
+            X = batch['X'].to(device)#.to(0)
+            Y = batch['Y'].to(device)#.to(0)
 
             ##print(X.shape)
             for param in model.parameters():

@@ -10,13 +10,15 @@ from models import STLSTM
 from datasets import BarkleyDataset
 from torch.optim.lr_scheduler import ReduceLROnPlateau
 
+import argparse
+
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 batch_size = 4
 lr = 8e-4
 val_split = 0.1
 epochs = 16
-hidden_size = 128
+hidden_size = 64
 
 os.environ["WANDB_MODE"] = "dryrun"
 wandb.init(project='FromSurface2DepthFinal', name='STLSTM_t32_d_0', reinit=True,dir="logs/")
@@ -24,6 +26,13 @@ wandb.init(project='FromSurface2DepthFinal', name='STLSTM_t32_d_0', reinit=True,
 # %%
 
 if __name__=='__main__':
+
+    parser = argparse.ArgumentParser(description='Training of Neural Networks, the Barkley Diver')
+    parser.add_argument('-depth', '--depth', type=int)
+
+    _args = parser.parse_args()
+    args = vars(_args)
+    
 
     #X = torch.rand(64,32,1,120,120).numpy()
     #Y = torch.rand(64,1,32,120,120).numpy()
@@ -38,7 +47,7 @@ if __name__=='__main__':
     model = nn.DataParallel(STLSTM(hidden_size=hidden_size)).to(device)#, device_ids=[0,1])
     #model.to(f'cuda:{model.device_ids[0]}') # .to(device)
 
-    depth = 0
+    depth = args['depth']
     depths = [depth]
     train_dataset, val_dataset = torch.utils.data.random_split(BarkleyDataset(X, Y, depths=depths), [train_len, val_len])
 

@@ -20,7 +20,7 @@
 # -q grannus.q
 
 # Path for output
-#$ -o /data.bmp/heart/DataAnalysis/2020_3DExMedSurfaceToDepth/FromSurface2DepthFinal/logs
+#$ -o /data.bmp/heart/DataAnalysis/2020_3DExMedSurfaceToDepth/FromSurface2DepthFinal/logs/jobs
 
 # job array of length 1
 #$ -t 1:2
@@ -34,10 +34,10 @@ def main():
     print(os.environ['SGE_TASK_ID'])
     SGE_TASK_ID = int(os.environ['SGE_TASK_ID']) - 1
 
-    depth = SGE_TASK_ID
+    depth = str(SGE_TASK_ID)
     time_steps = 32
 
-    os.system(f"python train.py")
+    os.system(f"python train.py -depth {depth}")
     #os.system(f"python train.py --depth {depth} --time_steps {time_steps}")
 
 

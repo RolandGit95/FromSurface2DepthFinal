@@ -18,7 +18,7 @@ batch_size = 4
 lr = 8e-4
 val_split = 0.1
 epochs = 16
-hidden_size = 64
+hidden_size = 128
 
 os.environ["WANDB_MODE"] = "dryrun"
 
@@ -36,8 +36,8 @@ if __name__=='__main__':
     #X = torch.rand(64,32,1,120,120).numpy()
     #Y = torch.rand(64,1,32,120,120).numpy()
 
-    X = torch.load('data/X_train_debug.pt')#, map_location=device)
-    Y = torch.load('data/Y_train_debug.pt')#, map_location=device)
+    X = torch.load('data/X_train.pt')#, map_location=device)
+    Y = torch.load('data/Y_train.pt')#, map_location=device)
 
     length = len(X)
     val_len = int(length*val_split)

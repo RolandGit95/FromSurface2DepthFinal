@@ -16,7 +16,7 @@ class BarkleyDataset(Dataset):
         self.transform = lambda data: (data.float()+127)/255.
         self.target_transform = lambda data: (data.float()+127)/255.
 
-        self.X = X[:,time_steps] #dimensions: [N,T,D,H,W]#torch.from_numpy(X)
+        self.X = X[:,time_steps][:,::-1] #dimensions: [N,T,D,H,W]#torch.from_numpy(X)
         self.Y = Y[:,:,depths] #torch.from_numpy(Y)
 
     def __getitem__(self, idx: int):

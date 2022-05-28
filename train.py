@@ -16,7 +16,7 @@ batch_size = 4
 lr = 8e-4
 val_split = 0.1
 epochs = 16
-hidden_size = 64
+hidden_size = 128
 
 os.environ["WANDB_MODE"] = "dryrun"
 wandb.init(project='FromSurface2DepthFinal', name='STLSTM_t32_d_0', reinit=True,dir="logs/")

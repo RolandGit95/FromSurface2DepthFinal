@@ -21,7 +21,6 @@ epochs = 16
 hidden_size = 64
 
 os.environ["WANDB_MODE"] = "dryrun"
-wandb.init(project='FromSurface2DepthFinal', name='STLSTM_t32_d_0', reinit=True,dir="logs/")
 
 # %%
 
@@ -49,6 +48,9 @@ if __name__=='__main__':
 
     depth = args['depth']
     depths = [depth]
+
+    wandb.init(project='FromSurface2DepthFinal', name=f'STLSTM_t32_d_{depth}', reinit=True,dir="logs/")
+
     train_dataset, val_dataset = torch.utils.data.random_split(BarkleyDataset(X, Y, depths=depths), [train_len, val_len])
 
     train_dataloader = torch.utils.data.DataLoader(train_dataset, batch_size=batch_size, 

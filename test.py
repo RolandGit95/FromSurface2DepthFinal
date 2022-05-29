@@ -64,11 +64,11 @@ if __name__=='__main__':
         LOSSES = []
         with torch.no_grad():
             for i, batch in tqdm(enumerate(test_dataloader), total=len(test_dataset)//batch_size):
-                X = batch['X'].to(device)#.to(0)
-                Y = batch['Y'].to(device)#.to(0)
+                x = batch['X'].to(device)#.to(0)
+                y = batch['Y'].to(device)#.to(0)
 
-                y_pred = model(X, max_depth=len(depths))
-                loss = test_loss_fnc(y_pred, Y).view(batch_size, -1).mean(1).detach().cpu().numpy()
+                y_pred = model(x, max_depth=len(depths))
+                loss = test_loss_fnc(y_pred, y).view(batch_size, -1).mean(1).detach().cpu().numpy()
                 #loss = loss.view(loss.size(0), -1)#.mean(1)
                 LOSSES.append(loss)
                 print(loss)

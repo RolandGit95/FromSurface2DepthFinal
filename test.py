@@ -13,7 +13,7 @@ from torch.optim.lr_scheduler import ReduceLROnPlateau
 
 import argparse
 
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 batch_size = 2
 hidden_size = 128
@@ -75,7 +75,7 @@ if __name__=='__main__':
 
     LOSSES = np.array(LOSSES)
     np.save(os.path.join('logs/losses', model_name + '_l1', LOSSES))
-    import IPython ; IPython.embed() ; exit(1)
+    #import IPython ; IPython.embed() ; exit(1)
 
 
         #torch.save(model, f'models/STLSTM_t32_d_{depth}_ep{epoch}')

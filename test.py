@@ -43,15 +43,12 @@ if __name__=='__main__':
 
     for depth in [0,1,2,3,4,5,6,7]:
         depths = [depth]
-        model_path = os.path.join('models', f'STLSTM_t32_d_{depth}_ep14')
+
         model_name = f'STLSTM_t32_d_{depth}_ep14'
+
+        model_path = os.path.join('models', model_name)
         model = nn.DataParallel(STLSTM(hidden_size=hidden_size)).to(device)#, device_ids=[0,1])
         model.load_state_dict(torch.load(model_path))
-
-        #import IPython ; IPython.embed() ; exit(1)
-
-
-        #wandb.init(project='FromSurface2DepthFinal', name=f'STLSTM_t32_d_{depth}', reinit=True,dir="logs/")
 
         test_dataset = BarkleyDataset(X, Y, depths=depths)
 
@@ -71,7 +68,7 @@ if __name__=='__main__':
                 Y = batch['Y'].to(device)#.to(0)
 
                 y_pred = model(X, max_depth=len(depths))
-                loss = test_loss_fnc(y_pred, Y[:,:,:]).view(batch_size, -1).mean(1).detach().cpu().numpy()
+                loss = test_loss_fnc(y_pred, Y).view(batch_size, -1).mean(1).detach().cpu().numpy()
                 #loss = loss.view(loss.size(0), -1)#.mean(1)
                 LOSSES.append(loss)
                 print(loss)
@@ -82,18 +79,7 @@ if __name__=='__main__':
 
         #LOSSES = np.array(LOSSES)
         LOSSES = np.reshape(LOSSES, -1)
-        np.save(os.path.join('logs/losses', model_name + '_l1', LOSSES))
-    #import IPython ; IPython.embed() ; exit(1)
-
-
-        #torch.save(model, f'models/STLSTM_t32_d_{depth}_ep{epoch}')
-        #torch.save(model.state_dict(), f'models/STLSTM_t32_d_{depth}_ep{epoch}')
-                #for callback in callbacks:
-                #    callback.step(val_loss)
-        #print(X.shape)
-    #with torch.no_grad():
-    #    y_pred = model(X[:1], max_depth=32)
-
+        np.save(os.path.join('logs/losses', model_name + '_l1'), LOSSES)
 
 # %%
 

@@ -15,7 +15,7 @@ import argparse
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
-batch_size = 1
+batch_size = 16
 hidden_size = 128
 
 os.environ["WANDB_MODE"] = "dryrun"
@@ -41,40 +41,48 @@ if __name__=='__main__':
     depth = args['depth']
     depths = [depth]
 
-    model_path = os.path.join('models', f'STLSTM_t32_d_{depth}_ep14')
-    model_name = f'STLSTM_t32_d_{depth}_ep14'
-    model = STLSTM(hidden_size=hidden_size).to(device)#, device_ids=[0,1])
-    model.load_state_dict(torch.load(model_path))
+    for depth in [0,1,2,3,4,5,6,7]:
+        depths = [depth]
+        model_path = os.path.join('models', f'STLSTM_t32_d_{depth}_ep14')
+        model_name = f'STLSTM_t32_d_{depth}_ep14'
+        model = nn.DataParallel(STLSTM(hidden_size=hidden_size)).to(device)#, device_ids=[0,1])
+        model.load_state_dict(torch.load(model_path))
 
-    #import IPython ; IPython.embed() ; exit(1)
-
-
-    #wandb.init(project='FromSurface2DepthFinal', name=f'STLSTM_t32_d_{depth}', reinit=True,dir="logs/")
-
-    test_dataset = BarkleyDataset(X, Y, depths=depths)
-
-    test_dataloader = torch.utils.data.DataLoader(test_dataset, batch_size=batch_size, 
-                                                    shuffle=False, num_workers=2, drop_last=True)
+        #import IPython ; IPython.embed() ; exit(1)
 
 
-    test_dataloader_iter = iter(test_dataloader)
-    test_loss_fnc = nn.L1Loss()
+        #wandb.init(project='FromSurface2DepthFinal', name=f'STLSTM_t32_d_{depth}', reinit=True,dir="logs/")
 
-    torch.backends.cudnn.benchmark = True
+        test_dataset = BarkleyDataset(X, Y, depths=depths)
 
-    LOSSES = []
-    with torch.no_grad():
-        for i, batch in tqdm(enumerate(test_dataloader), total=len(test_dataset)//batch_size):
-            X = batch['X'].to(device)#.to(0)
-            Y = batch['Y'].to(device)#.to(0)
+        test_dataloader = torch.utils.data.DataLoader(test_dataset, batch_size=batch_size, 
+                                                        shuffle=False, num_workers=2, drop_last=True)
 
-            y_pred = model(X, max_depth=len(depths))
-            loss = test_loss_fnc(y_pred, Y[:,:,:]).detach().cpu().numpy()
-            LOSSES.append(loss)
-            print(loss)
 
-    LOSSES = np.array(LOSSES)
-    np.save(os.path.join('logs/losses', model_name + '_l1', LOSSES))
+        test_dataloader_iter = iter(test_dataloader)
+        test_loss_fnc = nn.L1Loss(reduction='none')
+
+        torch.backends.cudnn.benchmark = True
+
+        LOSSES = []
+        with torch.no_grad():
+            for i, batch in tqdm(enumerate(test_dataloader), total=len(test_dataset)//batch_size):
+                X = batch['X'].to(device)#.to(0)
+                Y = batch['Y'].to(device)#.to(0)
+
+                y_pred = model(X, max_depth=len(depths))
+                loss = test_loss_fnc(y_pred, Y[:,:,:]).view(batch_size, -1).mean(1).detach().cpu().numpy()
+                #loss = loss.view(loss.size(0), -1)#.mean(1)
+                LOSSES.append(loss)
+                print(loss)
+
+                #if i==16:
+                #    break
+        #import IPython ; IPython.embed() ; exit(1)
+
+        #LOSSES = np.array(LOSSES)
+        LOSSES = np.reshape(LOSSES, -1)
+        np.save(os.path.join('logs/losses', model_name + '_l1', LOSSES))
     #import IPython ; IPython.embed() ; exit(1)
 
 

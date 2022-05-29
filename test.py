@@ -43,7 +43,7 @@ if __name__=='__main__':
 
     model_path = os.path.join('models', f'STLSTM_t32_d_{depth}_ep14')
     model_name = f'STLSTM_t32_d_{depth}_ep14'
-    model = nn.DataParallel(STLSTM(hidden_size=hidden_size)).to(device)#, device_ids=[0,1])
+    model = STLSTM(hidden_size=hidden_size).to(device)#, device_ids=[0,1])
     model.load_state_dict(torch.load(model_path))
 
     #import IPython ; IPython.embed() ; exit(1)

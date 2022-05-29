@@ -15,7 +15,7 @@ import argparse
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
-batch_size = 2
+batch_size = 1
 hidden_size = 128
 
 os.environ["WANDB_MODE"] = "dryrun"

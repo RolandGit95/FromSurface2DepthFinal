@@ -5,6 +5,7 @@ import torch
 import torch.nn as nn
 import wandb
 from tqdm import tqdm
+import numpy as np
 
 from models import STLSTM
 from datasets import BarkleyDataset
@@ -41,7 +42,7 @@ if __name__=='__main__':
     depths = [depth]
 
     model_path = os.path.join('models', f'STLSTM_t32_d_{depth}_ep14')
-
+    model_name = f'STLSTM_t32_d_{depth}_ep14'
     model = nn.DataParallel(STLSTM(hidden_size=hidden_size)).to(device)#, device_ids=[0,1])
     model.load_state_dict(torch.load(model_path))
 
@@ -72,6 +73,8 @@ if __name__=='__main__':
             LOSSES.append(loss)
             print(loss)
 
+    LOSSES = np.array(LOSSES)
+    np.save(os.path.join('logs/losses', model_name + '_l1', LOSSES))
     import IPython ; IPython.embed() ; exit(1)
 
 

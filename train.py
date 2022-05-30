@@ -66,7 +66,7 @@ if __name__=='__main__':
 
     torch.backends.cudnn.benchmark = True
 
-    wandb.watch(model, log="all", log_freq=1)
+    wandb.watch(model, log="all", log_freq=64)
 
     def get_lr():
         for param_group in optimizer.param_groups:

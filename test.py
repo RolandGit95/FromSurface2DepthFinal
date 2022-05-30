@@ -41,7 +41,7 @@ if __name__=='__main__':
     depth = args['depth']
     depths = [depth]
 
-    for depth in [0,1,2,3,4,5,6,7]:
+    for depth in [9,10,14]:
         depths = [depth]
 
         model_name = f'STLSTM_t32_d_{depth}_ep14'

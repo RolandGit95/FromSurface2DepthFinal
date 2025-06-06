@@ -100,8 +100,8 @@ if __name__=='__main__':
                     batch = next(val_dataloader_iter)
                     X_val, y_val = batch['X'], batch['Y']
                 except StopIteration:
-                    val_loader_iter = iter(val_dataloader)
-                    batch = next(val_loader_iter)
+                    val_dataloader_iter = iter(val_dataloader)
+                    batch = next(val_dataloader_iter)
                     X_val, y_val = batch['X'], batch['Y']
                 X_val = X_val.to(0)
                 y_val = y_val.to(0)

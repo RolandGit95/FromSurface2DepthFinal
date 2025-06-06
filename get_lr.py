@@ -1,6 +1,6 @@
 # %%
 
-import os 
+import os
 import torch
 import torch.nn as nn
 import wandb
@@ -21,31 +21,48 @@ os.environ["WANDB_MODE"] = "dryrun"
 
 # %%
 
-if __name__=='__main__':
+if __name__ == "__main__":
 
-    #X = torch.rand(64,32,1,120,120).numpy()
-    #Y = torch.rand(64,1,32,120,120).numpy()
+    # X = torch.rand(64,32,1,120,120).numpy()
+    # Y = torch.rand(64,1,32,120,120).numpy()
 
-    X_raw = torch.load('data/X_train_debug.pt')#, map_location=device)
-    Y_raw = torch.load('data/Y_train_debug.pt')#, map_location=device)
+    X_raw = torch.load("data/X_train_debug.pt")  # , map_location=device)
+    Y_raw = torch.load("data/Y_train_debug.pt")  # , map_location=device)
 
     lrs = [5e-3, 2e-3, 1e-3, 5e-4, 3e-4, 1e-4]
     for lr in lrs:
-        wandb.init(project='FromSurface2DepthFinal', name='STLSTM_t32_d32_lrtest', reinit=True,dir="logs/")
+        wandb.init(
+            project="FromSurface2DepthFinal",
+            name="STLSTM_t32_d32_lrtest",
+            reinit=True,
+            dir="logs/",
+        )
 
         length = len(X_raw)
-        val_len = int(length*val_split)
+        val_len = int(length * val_split)
         train_len = length - val_len
 
-        model = nn.DataParallel(STLSTM(), device_ids=[0,1])
-        model.to(f'cuda:{model.device_ids[0]}') # .to(device)
+        model = nn.DataParallel(STLSTM(), device_ids=[0, 1])
+        model.to(f"cuda:{model.device_ids[0]}")  # .to(device)
 
-        train_dataset, val_dataset = torch.utils.data.random_split(BarkleyDataset(X_raw, Y_raw), [train_len, val_len])
+        train_dataset, val_dataset = torch.utils.data.random_split(
+            BarkleyDataset(X_raw, Y_raw), [train_len, val_len]
+        )
 
-        train_dataloader = torch.utils.data.DataLoader(train_dataset, batch_size=batch_size, 
-                                                        shuffle=True, num_workers=2, drop_last=True)
-        val_dataloader = torch.utils.data.DataLoader(val_dataset, batch_size=batch_size, 
-                                                        shuffle=False, num_workers=2, drop_last=True)
+        train_dataloader = torch.utils.data.DataLoader(
+            train_dataset,
+            batch_size=batch_size,
+            shuffle=True,
+            num_workers=2,
+            drop_last=True,
+        )
+        val_dataloader = torch.utils.data.DataLoader(
+            val_dataset,
+            batch_size=batch_size,
+            shuffle=False,
+            num_workers=2,
+            drop_last=True,
+        )
 
         val_dataloader_iter = iter(val_dataloader)
         criterion = nn.MSELoss()
@@ -55,26 +72,32 @@ if __name__=='__main__':
 
         wandb.watch(model, log="all", log_freq=1)
 
-
         optimizer = torch.optim.Adam(model.parameters(), lr=lr)
-        callbacks = [ReduceLROnPlateau(optimizer, patience=512, factor=0.3, min_lr=1e-7, verbose=True)]
+        callbacks = [
+            ReduceLROnPlateau(
+                optimizer, patience=512, factor=0.3, min_lr=1e-7, verbose=True
+            )
+        ]
 
         def get_lr():
             for param_group in optimizer.param_groups:
-                return param_group['lr']
+                return param_group["lr"]
 
         for epoch in range(epochs):
-            for i, batch in tqdm(enumerate(train_dataloader), total=len(train_dataset)//batch_size):
-                X = batch['X'].to(0)
-                Y = batch['Y'].to(0)
+            for i, batch in tqdm(
+                enumerate(train_dataloader),
+                total=len(train_dataset) // batch_size,
+            ):
+                X = batch["X"].to(0)
+                Y = batch["Y"].to(0)
 
-                ##print(X.shape)
+                # print(X.shape)
                 for param in model.parameters():
                     param.grad = None
 
                 # forward + backward + optimize
                 y_pred = model(X, max_depth=32)
-                loss = criterion(y_pred, Y[:,:,:32])
+                loss = criterion(y_pred, Y[:, :, :32])
                 wandb.log({"loss": loss})
                 loss.backward()
                 optimizer.step()
@@ -83,15 +106,14 @@ if __name__=='__main__':
 
                 wandb.log({"lr": get_lr()})
 
-
                 if i % 16 == 0:
                     try:
                         batch = next(val_dataloader_iter)
-                        X_val, y_val = batch['X'], batch['Y']
+                        X_val, y_val = batch["X"], batch["Y"]
                     except StopIteration:
                         val_loader_iter = iter(val_dataloader)
                         batch = next(val_loader_iter)
-                        X_val, y_val = batch['X'], batch['Y']
+                        X_val, y_val = batch["X"], batch["Y"]
                     X_val = X_val.to(0)
                     y_val = y_val.to(0)
 
@@ -104,10 +126,10 @@ if __name__=='__main__':
                         callback.step(val_loss)
         wandb.finish()
 
-                #for callback in callbacks:
-                #    callback.step(val_loss)
-        #print(X.shape)
-    #with torch.no_grad():
+        # for callback in callbacks:
+        #    callback.step(val_loss)
+        # print(X.shape)
+    # with torch.no_grad():
     #    y_pred = model(X[:1], max_depth=32)
 
 

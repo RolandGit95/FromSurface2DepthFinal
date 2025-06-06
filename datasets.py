@@ -1,36 +1,59 @@
-import os
-import glob
 import numpy as np
 import torch
 from torch.utils.data import Dataset
-from torchvision.datasets import VisionDataset
+
+# Dataset used to load Barkley simulation data
+
+__all__ = ["BarkleyDataset"]
 
 # %%
 
 
 class BarkleyDataset(Dataset):
-    def __init__(self, X, Y, depths=np.arange(0,32,1), time_steps=np.arange(0,32,1)) -> None:
+    """Torch dataset handling Barkley simulation data.
 
-        super(BarkleyDataset, self).__init__()
+    Parameters
+    ----------
+    X : torch.Tensor
+        Input samples with shape ``[N, T, D, H, W]``.
+    Y : torch.Tensor
+        Ground truth with shape ``[N, 1, D, H, W]``.
+    depths : array-like, optional
+        Depth indices to select from ``Y``.
+    time_steps : array-like, optional
+        Time steps to select from ``X``.
+    """
 
-        self.transform = lambda data: (data.float()+127)/255.
-        self.target_transform = lambda data: (data.float()+127)/255.
+    def __init__(
+        self,
+        X: torch.Tensor,
+        Y: torch.Tensor,
+        depths: np.ndarray = np.arange(0, 32, 1),
+        time_steps: np.ndarray = np.arange(0, 32, 1),
+    ) -> None:
 
-        self.X = X[:,time_steps]#[:,::-1] #dimensions: [N,T,D,H,W]#torch.from_numpy(X)
-        #self.X = 
-        self.Y = Y[:,:,depths] #torch.from_numpy(Y)
+        super().__init__()
+
+        self.transform = lambda data: (data.float() + 127) / 255.0
+        self.target_transform = lambda data: (data.float() + 127) / 255.0
+
+        # Select given time steps and depths
+        self.X = X[:, time_steps]
+        self.Y = Y[:, :, depths]
 
     def __getitem__(self, idx: int):
+        """Return a sample from the dataset."""
 
-        # transform data of type int8 to float32 only at execution time to save memory
-        X, Y = self.transform(self.X[idx]), self.target_transform(self.Y[idx])
+        # convert on the fly to save memory
+        X = self.transform(self.X[idx])
+        Y = self.target_transform(self.Y[idx])
 
-        # Training data augmentation (random rotation of 0,90,180 or 270 degree)
+        # random rotation by 0, 90, 180 or 270 degrees
         k = np.random.randint(0, 4)
         X = torch.rot90(X, k=k, dims=[2, 3])
         Y = torch.rot90(Y, k=k, dims=[2, 3])
 
-        return {'X': X, 'Y': Y}
+        return {"X": X, "Y": Y}
 
     def __len__(self):
         return len(self.X)
